@@ -1,23 +1,27 @@
-
+from config import DataFile, load_config
+from constants import VENV
 from pathlib import Path
-from typing import List, TypedDict
-import sys
-
-from config import DataFile, load_config, DEFAULT_ICON
-from env import python_path, run
+from subprocess import run
 
 
-def build(main_file: str = "src/run.py", icon: str = DEFAULT_ICON, data_files: List[DataFile] = None):
-    cmd = [sys.executable, '-m', 'nuitka', main_file,
-           '--assume-yes-for-downloads', '--standalone']
+def build(main_file: str, icon: str, data_files: list[DataFile]):
+    args = [
+        "{} -m nuitka".format(VENV.PYTHON_PATH),
+        "{}".format(main_file),
+        "--assume-yes-for-downloads",
+        "--standalone",
+    ]
+
     if Path(icon).exists():
-        cmd.append(f"--windows-icon-from-ico={icon}")
+        args.append("--windows-icon-from-ico={}".format(icon))
     if data_files is not None:
         for data_file in data_files:
-            cmd.append(
-                f'--include-data-file={data_file["src"]}={data_file["dest"]}')
-    # print(f"Running {' '.join(cmd)}")
-    run(cmd)
+            src = data_file["src"]
+            dest = data_file["dest"]
+
+            args.append("--include-data-file={}={}".format(src, dest))
+
+    run(" ".join(args))
 
 
 def main():
@@ -25,7 +29,5 @@ def main():
     build(config.main_file, config.icon, config.data_files)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-    # bell
-    print('\a')

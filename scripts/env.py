@@ -1,46 +1,24 @@
-from pathlib import Path
-import sys
-
-from utils import run
-from config import load_config, DEFAULT_VIRTUAL_ENV, DEFAULT_REQUIREMENTS_FILE
-
-
-if sys.platform == "win32":
-    PIP_NAME = 'pip.exe'
-    PYTHON_NAME = 'python.exe'
-else:
-    PIP_NAME = 'pip'
-    PYTHON_NAME = 'python'
-
-
-def python_path(virtual_env: str = DEFAULT_VIRTUAL_ENV) -> str:
-    return str(Path().cwd().joinpath(virtual_env, 'Scripts', PYTHON_NAME))
-
-
-def pip_path(virtual_env: str = DEFAULT_VIRTUAL_ENV) -> str:
-    return str(Path().cwd().joinpath(virtual_env, 'Scripts', PIP_NAME))
-
-
-def is_virtual_env(virtual_env: str = DEFAULT_VIRTUAL_ENV) -> bool:
-    return Path().cwd().joinpath(virtual_env).exists()
-
-
-def create_venv(virtual_env: str = DEFAULT_VIRTUAL_ENV) -> None:
-    run([python_path(virtual_env), '-m', 'venv', virtual_env])
-
-
-def install_requirements(requirements_file: str = DEFAULT_REQUIREMENTS_FILE, virtual_env: str = DEFAULT_VIRTUAL_ENV) -> None:
-    print(f"Installing requirements from {requirements_file}")
-    run([pip_path(virtual_env), 'install', '-U', '-r', requirements_file])
+from config import load_config
+from os import path
+from constants import VENV, PYTHON_PATH
+from subprocess import run
 
 
 def main():
     config = load_config()
-    if not is_virtual_env(config.virtual_env):
-        create_venv(config.virtual_env)
-    install_requirements(config.requirements, config.virtual_env)
-    install_requirements(config.requirements_dev, config.virtual_env)
+
+    if not path.exists(VENV.PATH):
+        print("Creating virtual environment '{}'...".format(config.virtual_env))
+        run("{} -m venv {}".format(PYTHON_PATH, config.virtual_env))
+        print("Finished!")
+
+    print("Installing dependencies...")
+    for requirements in [config.requirements, config.requirements_dev]:
+        if not path.exists(requirements):
+            continue
+        run("{} install -U -r {}".format(VENV.PIP_PATH, requirements))
+    print("Finished!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
