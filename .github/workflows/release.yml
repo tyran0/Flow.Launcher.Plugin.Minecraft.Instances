@@ -63,13 +63,13 @@ jobs:
         id: version
         uses: notiz-dev/github-action-json-property@release
         with:
-          path: "./src/plugin.json"
+          path: "src/plugin.json"
           prop_path: "Version"
       - name: Get Plugin Name
         id: name
         uses: notiz-dev/github-action-json-property@release
         with:
-          path: "./src/plugin.json"
+          path: "src/plugin.json"
           prop_path: "Name"
       - name: Publish
         uses: softprops/action-gh-release@v1

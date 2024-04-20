@@ -32,8 +32,8 @@ jobs:
       - name: Get Plugin's version
         id: version
         uses: notiz-dev/github-action-json-property@release
-        with: 
-          path: 'plugin.json'
+        with:
+          path: 'src/plugin.json'
           prop_path: 'Version'
       - name: Package files
         run: |
